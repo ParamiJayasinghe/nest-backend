@@ -11,33 +11,17 @@ export class ProductsService {
     return JSON.parse(data);
   }
 
-  getFeaturedProducts(page: number, size: number) {
+  getProductsByCategory(category: string, page: number, size: number) {
     const data = this.readProductsFile();
-    const featuredProducts = data.featuredProducts;
     
-    const startIndex = page * size;
-    const endIndex = startIndex + size;
-    
-    return featuredProducts.slice(startIndex, endIndex);
-  }
+    if (!data[category]) {
+      throw new Error("Invalid category");
+    }
 
-  getBestSellingProducts(page: number, size: number) {
-    const data = this.readProductsFile();
-    const bestSellingProducts = data.bestSellingProducts;
-    
+    const products = data[category];
     const startIndex = page * size;
     const endIndex = startIndex + size;
-    
-    return bestSellingProducts.slice(startIndex, endIndex);
-  }
 
-  getTodaysDeals(page: number, size: number) {
-    const data = this.readProductsFile();
-    const todayDeals = data.todayDeals;
-    
-    const startIndex = page * size;
-    const endIndex = startIndex + size;
-    
-    return todayDeals.slice(startIndex, endIndex);
+    return products.slice(startIndex, endIndex);
   }
 }
