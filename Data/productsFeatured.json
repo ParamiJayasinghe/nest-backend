@@ -1,0 +1,18 @@
+
+    [
+      { "id": 1, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/headset.jpg" },
+      { "id": 2, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/watch.jpg" },
+      { "id": 3, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/speaker.jpg" },
+      { "id": 4, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/cam.jpg" },
+      { "id": 5, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/fun.jpg" },
+      { "id": 6, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/kettle.jpg" },
+      { "id": 7, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/headset.jpg" },
+      { "id": 8, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/watch.jpg" },
+      { "id": 9, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/speaker.jpg" },
+      { "id": 10, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/cam.jpg" },
+      { "id": 11, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/fun.jpg" },
+      { "id": 12, "name": "Instax Mini 11", "price": 22500.00, "rating": 5, "image": "/images/kettle.jpg" }
+    ]
+  
+
+ 
