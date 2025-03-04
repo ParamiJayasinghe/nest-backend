@@ -1,19 +1,17 @@
+// src/products/products.controller.ts
 import { Controller, Get, Query } from '@nestjs/common';
-import { ProductsService } from '../products/products.service';
+import { ProductsService } from './products.service';
 
-@Controller('api/products')
+@Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Get()
-  getProducts(
-    @Query('category') category: string,
-    @Query('page') page: string,
-    @Query('size') size: string
+  async getProducts(
+    @Query('section') section: string,
+    @Query('page') page: number = 0,
+    @Query('size') size: number = 4,
   ) {
-    const pageNumber = parseInt(page) || 0;
-    const pageSize = parseInt(size) || 4;
-
-    return this.productsService.getProductsByCategory(category, pageNumber, pageSize);
+    return this.productsService.getProducts(section, page, size);
   }
 }

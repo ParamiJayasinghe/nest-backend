@@ -1,27 +1,55 @@
+// src/products/products.service.ts
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ProductFeaturedRepository } from './products.repository';
+import { ProductBestSellingRepository } from './products.repository';
+import { ProductTodayDealsRepository } from './products.repository';
+import { ProductFeatured } from './products.entity';
+import { ProductBestSelling } from './products.entity';
+import { ProductTodayDeals } from './products.entity';
 
 @Injectable()
 export class ProductsService {
-  private productsFilePath = path.join(__dirname, '../../Data/products.json');
+  constructor(
+    @InjectRepository(ProductFeatured)
+    private productFeaturedRepo: ProductFeaturedRepository,
 
-  private readProductsFile() {
-    const data = fs.readFileSync(this.productsFilePath, 'utf8');
-    return JSON.parse(data);
-  }
+    @InjectRepository(ProductBestSelling)
+    private productBestSellingRepo: ProductBestSellingRepository,
 
-  getProductsByCategory(category: string, page: number, size: number) {
-    const data = this.readProductsFile();
+    @InjectRepository(ProductTodayDeals)
+    private productTodayDealsRepo: ProductTodayDealsRepository,
+  ) {}
+
+  // New method to fetch data from different tables (Featured, Best Selling, Today's Deals)
+  async getProducts(section: string, page: number, size: number) {
+    let products: any[];
+
+    const offset = page * size;
     
-    if (!data[category]) {
-      throw new Error("Invalid category");
+    switch (section) {
+      case 'featured':
+        products = await this.productFeaturedRepo.find({
+          take: size,
+          skip: offset,
+        });
+        break;
+      case 'bestselling':
+        products = await this.productBestSellingRepo.find({
+          take: size,
+          skip: offset,
+        });
+        break;
+      case 'todaydeals':
+        products = await this.productTodayDealsRepo.find({
+          take: size,
+          skip: offset,
+        });
+        break;
+      default:
+        throw new Error('Invalid section');
     }
 
-    const products = data[category];
-    const startIndex = page * size;
-    const endIndex = startIndex + size;
-
-    return products.slice(startIndex, endIndex);
+    return products;
   }
 }

@@ -1,22 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ProductsController } from './products/products.controller';
-import {ProductsService } from './products/products.service';
+// src/products/products.controller.ts
+import { Controller, Get, Query } from '@nestjs/common';
+import { ProductsService } from './products/products.service';
 
-describe('AppController', () => {
-  let appController: ProductsController;
+@Controller('products')
+export class ProductsController {
+  constructor(private readonly productsService: ProductsService) {}
 
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [ProductsController],
-      providers: [ProductsService],
-    }).compile();
-
-    appController = app.get<ProductsController>(ProductsController);
-  });
-
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getFeaturedProducts("4","4")).toBe('Hello World!');
-    });
-  });
-});
+  @Get()
+  async getProducts(
+    @Query('section') section: string,
+    @Query('page') page: number = 0,
+    @Query('size') size: number = 4,
+  ) {
+    return this.productsService.getProducts(section, page, size);
+  }
+}
