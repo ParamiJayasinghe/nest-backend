@@ -1,4 +1,3 @@
-// src/products/products.repository.ts
 import { EntityRepository, Repository } from 'typeorm';
 import { ProductFeatured } from './products.entity';
 import { ProductBestSelling } from './products.entity';

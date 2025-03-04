@@ -1,4 +1,3 @@
-// src/products/products.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductFeaturedRepository } from './products.repository';

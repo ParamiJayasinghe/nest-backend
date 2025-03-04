@@ -5,7 +5,7 @@ import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // Load environment variables
+    ConfigModule.forRoot({ isGlobal: true }), 
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -17,7 +17,7 @@ import { ProductsModule } from './products/products.module';
         password: configService.get<string>('DATABASE_PASSWORD'),
         database: configService.get<string>('DATABASE_NAME'),
         autoLoadEntities: true,
-        synchronize: true, // Set to false in production
+        synchronize: true, 
       }),
     }),
     ProductsModule,

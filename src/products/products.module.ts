@@ -1,9 +1,8 @@
-// src/products/products.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
-import { ProductFeatured } from './products.entity';  // Correctly import entities
+import { ProductFeatured } from './products.entity'; 
 import { ProductBestSelling } from './products.entity';
 import { ProductTodayDeals } from './products.entity';
 

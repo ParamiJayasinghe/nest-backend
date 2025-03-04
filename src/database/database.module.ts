@@ -1,7 +1,6 @@
-// src/database/database.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProductFeatured } from '../products/products.entity';  // Import product entities
+import { ProductFeatured } from '../products/products.entity';  
 import { ProductBestSelling } from '../products/products.entity';
 import { ProductTodayDeals } from '../products/products.entity';
 
@@ -9,15 +8,15 @@ import { ProductTodayDeals } from '../products/products.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost', // MySQL host
-      port: 3306,        // MySQL port
-      username: 'your_username', // MySQL username
-      password: 'your_password', // MySQL password
-      database: 'your_database_name', // Your database name
-      entities: [ProductFeatured, ProductBestSelling, ProductTodayDeals], // Include your entities here
-      synchronize: true, // Automatically create database tables
+      host: 'localhost', 
+      port: 3306,        
+      username: 'your_username', 
+      password: 'your_password', 
+      database: 'your_database_name', 
+      entities: [ProductFeatured, ProductBestSelling, ProductTodayDeals], 
+      synchronize: true, 
     }),
-    TypeOrmModule.forFeature([ProductFeatured, ProductBestSelling, ProductTodayDeals]),  // Register entities
+    TypeOrmModule.forFeature([ProductFeatured, ProductBestSelling, ProductTodayDeals]),  
   ],
 })
 export class DatabaseModule {}
