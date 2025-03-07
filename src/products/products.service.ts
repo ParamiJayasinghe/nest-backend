@@ -2,8 +2,9 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductFeatured } from './products.entity';
-import { ProductBestSelling } from './products.entity';
-import { ProductTodayDeals } from './products.entity';
+// import { ProductBestSelling } from './products.entity';
+// import { ProductTodayDeals } from './products.entity';
+import { Category } from 'src/category/category.entity';
 
 @Injectable()
 export class ProductsService {
@@ -11,79 +12,158 @@ export class ProductsService {
     @InjectRepository(ProductFeatured)
     private readonly productFeaturedRepo: Repository<ProductFeatured>,
 
-    @InjectRepository(ProductBestSelling)
-    private readonly productBestSellingRepo: Repository<ProductBestSelling>,
+    // @InjectRepository(ProductBestSelling)
+    // private readonly productBestSellingRepo: Repository<ProductBestSelling>,
 
-    @InjectRepository(ProductTodayDeals)
-    private readonly productTodayDealsRepo: Repository<ProductTodayDeals>,
+    // @InjectRepository(ProductTodayDeals)
+    // private readonly productTodayDealsRepo: Repository<ProductTodayDeals>,
+
+    @InjectRepository(Category)
+    private readonly categoryRepo: Repository<Category>,
   ) {}
 
-  // GET: Fetch products from a specific section with pagination
-  async getProducts(section: string, page: number, size: number) {
+  // GET: Fetch products from a specific section with pagination and category filtering
+  async getProducts(
+    section: string,
+    page: number,
+    size: number,
+    categoryId?: number,
+  ) {
     let products: any[];
     const offset = page * size;
 
     try {
+      const queryOptions: any = {
+        take: size,
+        skip: offset,
+        relations: ['category'], // Ensure category is joined
+      };
+
+      if (categoryId) {
+        queryOptions.where = { category: { id: categoryId } }; // Add category filter if categoryId is provided
+      }
+
       switch (section) {
         case 'featured':
-          products = await this.productFeaturedRepo.find({ take: size, skip: offset });
+          products = await this.productFeaturedRepo.find(queryOptions);
           break;
-        case 'bestselling':
-          products = await this.productBestSellingRepo.find({ take: size, skip: offset });
-          break;
-        case 'todaydeals':
-          products = await this.productTodayDealsRepo.find({ take: size, skip: offset });
-          break;
+        // case 'bestselling':
+        //   products = await this.productBestSellingRepo.find(queryOptions);
+        //   break;
+        // case 'todaydeals':
+        //   products = await this.productTodayDealsRepo.find(queryOptions);
+        //   break;
         default:
           throw new HttpException('Invalid section', HttpStatus.BAD_REQUEST);
       }
+
       return products;
     } catch (error) {
       console.error('Error fetching products:', error);
-      throw new HttpException('Failed to fetch products.', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to fetch products.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  // POST: Add a new product
+  // POST: Add a new product with categoryId
   async addProduct(productData: any) {
-    const { section, ...productDetails } = productData;
+    const { section, categoryId, ...productDetails } = productData;
 
     try {
+      let newProduct;
+      let category;
+
+      // Fetch category by id
+      category = await this.getCategoryById(categoryId);
+
       switch (section) {
         case 'featured':
-          return await this.productFeaturedRepo.save(productDetails);
-        case 'bestselling':
-          return await this.productBestSellingRepo.save(productDetails);
-        case 'todaydeals':
-          return await this.productTodayDealsRepo.save(productDetails);
+          newProduct = this.productFeaturedRepo.create({
+            ...productDetails,
+            category,
+          });
+          return await this.productFeaturedRepo.save(newProduct);
+        // case 'bestselling':
+        //   newProduct = this.productBestSellingRepo.create({
+        //     ...productDetails,
+        //     category,
+        //   });
+        //   return await this.productBestSellingRepo.save(newProduct);
+        // case 'todaydeals':
+        //   newProduct = this.productTodayDealsRepo.create({
+        //     ...productDetails,
+        //     category,
+        //   });
+        //   return await this.productTodayDealsRepo.save(newProduct);
         default:
           throw new HttpException('Invalid section', HttpStatus.BAD_REQUEST);
       }
     } catch (error) {
       console.error('Error adding product:', error);
-      throw new HttpException('Failed to add product.', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to add product.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  // PUT: Update an existing product
+  // Helper method to fetch Category by ID
+  // Helper method to fetch Category by ID
+  private async getCategoryById(categoryId: number) {
+    const category = await this.categoryRepo.findOne({
+      where: { id: categoryId }, // Use the 'where' option to specify the condition
+    });
+
+    if (!category) {
+      throw new HttpException('Category not found', HttpStatus.BAD_REQUEST);
+    }
+
+    return category;
+  }
+  // PUT: Update an existing product, including categoryId
   async updateProduct(id: number, productData: any) {
-    const { section, ...updatedProductDetails } = productData;
+    const { section, categoryId, ...updatedProductDetails } = productData;
 
     try {
       let updatedProduct;
+      let category;
+
+      // Fetch category by id
+      category = await this.getCategoryById(categoryId);
+
       switch (section) {
         case 'featured':
-          await this.productFeaturedRepo.update(id, updatedProductDetails);
-          updatedProduct = await this.productFeaturedRepo.findOne({ where: { id } });
+          await this.productFeaturedRepo.update(id, {
+            ...updatedProductDetails,
+            category,
+          });
+          updatedProduct = await this.productFeaturedRepo.findOne({
+            where: { id },
+            relations: ['category'],
+          });
           break;
-        case 'bestselling':
-          await this.productBestSellingRepo.update(id, updatedProductDetails);
-          updatedProduct = await this.productBestSellingRepo.findOne({ where: { id } });
-          break;
-        case 'todaydeals':
-          await this.productTodayDealsRepo.update(id, updatedProductDetails);
-          updatedProduct = await this.productTodayDealsRepo.findOne({ where: { id } });
-          break;
+        // case 'bestselling':
+        //   await this.productBestSellingRepo.update(id, {
+        //     ...updatedProductDetails,
+        //     category,
+        //   });
+        //   updatedProduct = await this.productBestSellingRepo.findOne({
+        //     where: { id },
+        //     relations: ['category'],
+        //   });
+        //   break;
+        // case 'todaydeals':
+        //   await this.productTodayDealsRepo.update(id, {
+        //     ...updatedProductDetails,
+        //     category,
+        //   });
+        //   updatedProduct = await this.productTodayDealsRepo.findOne({
+        //     where: { id },
+        //     relations: ['category'],
+        //   });
+        //   break;
         default:
           throw new HttpException('Invalid section', HttpStatus.BAD_REQUEST);
       }
@@ -95,7 +175,10 @@ export class ProductsService {
       return updatedProduct;
     } catch (error) {
       console.error('Error updating product:', error);
-      throw new HttpException('Failed to update product.', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to update product.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -107,12 +190,12 @@ export class ProductsService {
         case 'featured':
           deleteResult = await this.productFeaturedRepo.delete(id);
           break;
-        case 'bestselling':
-          deleteResult = await this.productBestSellingRepo.delete(id);
-          break;
-        case 'todaydeals':
-          deleteResult = await this.productTodayDealsRepo.delete(id);
-          break;
+        // case 'bestselling':
+        //   deleteResult = await this.productBestSellingRepo.delete(id);
+        //   break;
+        // case 'todaydeals':
+        //   deleteResult = await this.productTodayDealsRepo.delete(id);
+        //   break;
         default:
           throw new HttpException('Invalid section', HttpStatus.BAD_REQUEST);
       }
@@ -124,7 +207,10 @@ export class ProductsService {
       return { message: 'Product deleted successfully' };
     } catch (error) {
       console.error('Error deleting product:', error);
-      throw new HttpException('Failed to delete product.', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Failed to delete product.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

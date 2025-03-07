@@ -1,7 +1,23 @@
- [
-      { "id": 25, "name": "Instax Mini 11", "originalPrice": 120000.00, "discountedPrice": 100000.00, "image": "/images/cam.jpg" },
-      { "id": 26, "name": "Instax Mini 11", "originalPrice": 35000.00, "discountedPrice": 28000.00, "image": "/images/headset.jpg" },
-      { "id": 27, "name": "Instax Mini 11", "originalPrice": 70000.00, "discountedPrice": 60000.00, "image": "/images/fun.jpg" }
-    ]
- 
-  
+[
+  {
+    "id": 25,
+    "name": "Instax Mini 11",
+    "originalPrice": 120000.0,
+    "discountedPrice": 100000.0,
+    "image": "/images/cam.jpg"
+  },
+  {
+    "id": 26,
+    "name": "Instax Mini 11",
+    "originalPrice": 35000.0,
+    "discountedPrice": 28000.0,
+    "image": "/images/headset.jpg"
+  },
+  {
+    "id": 27,
+    "name": "Instax Mini 11",
+    "originalPrice": 70000.0,
+    "discountedPrice": 60000.0,
+    "image": "/images/fun.jpg"
+  }
+]
