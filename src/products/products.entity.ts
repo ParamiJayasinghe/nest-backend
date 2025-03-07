@@ -1,4 +1,11 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Category } from '../category/category.entity';
 
 @Entity('productsfeatured')
 export class ProductFeatured {
@@ -16,40 +23,44 @@ export class ProductFeatured {
 
   @Column('text')
   image: string;
+
+  @ManyToOne(() => Category, (category) => category.products)
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
 }
 
-@Entity('productsbestselling')
-export class ProductBestSelling {
-  @PrimaryGeneratedColumn()
-  id: number;
+// @Entity('productsbestselling')
+// export class ProductBestSelling {
+//   @PrimaryGeneratedColumn()
+//   id: number;
 
-  @Column('text')
-  name: string;
+//   @Column('text')
+//   name: string;
 
-  @Column('double')
-  price: number;
+//   @Column('double')
+//   price: number;
 
-  @Column('int')
-  rating: number;
+//   @Column('int')
+//   rating: number;
 
-  @Column('text')
-  image: string;
-}
+//   @Column('text')
+//   image: string;
+// }
 
-@Entity('productstodaydeals')
-export class ProductTodayDeals {
-  @PrimaryGeneratedColumn()
-  id: number;
+// @Entity('productstodaydeals')
+// export class ProductTodayDeals {
+//   @PrimaryGeneratedColumn()
+//   id: number;
 
-  @Column('text')
-  name: string;
+//   @Column('text')
+//   name: string;
 
-  @Column('double')
-  originalPrice: number;
+//   @Column('double')
+//   originalPrice: number;
 
-  @Column('double')
-  discountedPrice: number;
+//   @Column('double')
+//   discountedPrice: number;
 
-  @Column('text')
-  image: string;
-}
+//   @Column('text')
+//   image: string;
+// }
