@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductFeatured } from '../products/products.entity';
-// import { ProductBestSelling } from '../products/products.entity';
-// import { ProductTodayDeals } from '../products/products.entity';
 import { Category } from '../category/category.entity';
 
 @Module({
@@ -14,7 +12,7 @@ import { Category } from '../category/category.entity';
       username: 'your_username',
       password: 'your_password',
       database: 'your_database_name',
-      entities: [ProductFeatured, Category], // Include Category entity
+      entities: [ProductFeatured, Category],
       synchronize: true,
     }),
     TypeOrmModule.forFeature([ProductFeatured, Category]),
