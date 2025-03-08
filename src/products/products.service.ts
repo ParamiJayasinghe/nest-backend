@@ -127,60 +127,43 @@ export class ProductsService {
     const { section, categoryId, ...updatedProductDetails } = productData;
 
     try {
-      let updatedProduct;
-      let category;
+        let updatedProduct;
+        let category = null;
 
-      // Fetch category by id
-      category = await this.getCategoryById(categoryId);
+        // Fetch category only if categoryId is provided
+        if (categoryId) {
+            category = await this.getCategoryById(categoryId);
+        }
 
-      switch (section) {
-        case 'featured':
-          await this.productFeaturedRepo.update(id, {
-            ...updatedProductDetails,
-            category,
-          });
-          updatedProduct = await this.productFeaturedRepo.findOne({
-            where: { id },
-            relations: ['category'],
-          });
-          break;
-        // case 'bestselling':
-        //   await this.productBestSellingRepo.update(id, {
-        //     ...updatedProductDetails,
-        //     category,
-        //   });
-        //   updatedProduct = await this.productBestSellingRepo.findOne({
-        //     where: { id },
-        //     relations: ['category'],
-        //   });
-        //   break;
-        // case 'todaydeals':
-        //   await this.productTodayDealsRepo.update(id, {
-        //     ...updatedProductDetails,
-        //     category,
-        //   });
-        //   updatedProduct = await this.productTodayDealsRepo.findOne({
-        //     where: { id },
-        //     relations: ['category'],
-        //   });
-        //   break;
-        default:
-          throw new HttpException('Invalid section', HttpStatus.BAD_REQUEST);
-      }
+        switch (section) {
+            case 'featured':
+                await this.productFeaturedRepo.update(id, {
+                    ...updatedProductDetails,
+                    ...(category ? { category } : {}), // Only add category if provided
+                });
+                updatedProduct = await this.productFeaturedRepo.findOne({
+                    where: { id },
+                    relations: ['category'],
+                });
+                break;
 
-      if (!updatedProduct) {
-        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
-      }
+            default:
+                throw new HttpException('Invalid section', HttpStatus.BAD_REQUEST);
+        }
 
-      return updatedProduct;
+        if (!updatedProduct) {
+            throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+        }
+
+        return updatedProduct;
     } catch (error) {
-      console.error('Error updating product:', error);
-      throw new HttpException(
-        'Failed to update product.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+        console.error('Error updating product:', error);
+        throw new HttpException(
+            'Failed to update product.',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+        );
     }
-  }
+}
 
   // DELETE: Remove a product
   async deleteProduct(id: number, section: string) {
