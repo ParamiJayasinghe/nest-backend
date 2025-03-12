@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductFeatured } from './products.entity';
-import { Category } from 'src/category/category.entity';
+import { Category } from '../category/category.entity';
 
 @Injectable()
 export class ProductsService {
@@ -21,61 +21,39 @@ export class ProductsService {
     categoryId?: number,
   ) {
     const offset = page * size;
+    const queryBuilder = this.productFeaturedRepo
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.category', 'category')
+      .take(size)
+      .skip(offset);
 
-    try {
-      const queryBuilder = this.productFeaturedRepo
-        .createQueryBuilder('product')
-        .leftJoinAndSelect('product.category', 'category')
-        .take(size)
-        .skip(offset);
-
-      if (categoryId) {
-        queryBuilder.andWhere('product.categoryId = :categoryId', {
-          categoryId,
-        });
-      }
-
-      if (section === 'best-selling') {
-        queryBuilder.andWhere('product.soldItems > :soldThreshold', {
-          soldThreshold: 500,
-        });
-      } else if (section === 'todays-deals') {
-        queryBuilder.andWhere('product.discountPrice IS NOT NULL');
-      } else if (section !== 'featured') {
-        throw new HttpException('Invalid section', HttpStatus.BAD_REQUEST);
-      }
-
-      const products = await queryBuilder.getMany();
-      return products;
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      throw new HttpException(
-        'Failed to fetch products.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    if (categoryId) {
+      queryBuilder.andWhere('product.categoryId = :categoryId', { categoryId });
     }
+
+    if (section === 'best-selling') {
+      queryBuilder.andWhere('product.soldItems > :soldThreshold', {
+        soldThreshold: 500,
+      });
+    } else if (section === 'todays-deals') {
+      queryBuilder.andWhere('product.discountPrice IS NOT NULL');
+    } else if (section !== 'featured') {
+      throw new HttpException('Invalid section', HttpStatus.BAD_REQUEST);
+    }
+
+    return queryBuilder.getMany();
   }
 
   async addProduct(productData: any) {
     const { section, categoryId, ...productDetails } = productData;
+    const category = await this.getCategoryById(categoryId);
 
-    try {
-      let newProduct;
-      let category = await this.getCategoryById(categoryId);
+    const newProduct = this.productFeaturedRepo.create({
+      ...productDetails,
+      category,
+    });
 
-      newProduct = this.productFeaturedRepo.create({
-        ...productDetails,
-        category,
-      });
-
-      return await this.productFeaturedRepo.save(newProduct);
-    } catch (error) {
-      console.error('Error adding product:', error);
-      throw new HttpException(
-        'Failed to add product.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.productFeaturedRepo.save(newProduct);
   }
 
   private async getCategoryById(categoryId: number) {
@@ -93,51 +71,35 @@ export class ProductsService {
   async updateProduct(id: number, productData: any) {
     const { categoryId, ...updatedProductDetails } = productData;
 
-    try {
-      let category = null;
-      if (categoryId) {
-        category = await this.getCategoryById(categoryId);
-      }
-
-      await this.productFeaturedRepo.update(id, {
-        ...updatedProductDetails,
-        ...(category ? { category } : {}),
-      });
-
-      const updatedProduct = await this.productFeaturedRepo.findOne({
-        where: { id },
-        relations: ['category'],
-      });
-
-      if (!updatedProduct) {
-        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
-      }
-
-      return updatedProduct;
-    } catch (error) {
-      console.error('Error updating product:', error);
-      throw new HttpException(
-        'Failed to update product.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    let category = null;
+    if (categoryId) {
+      category = await this.getCategoryById(categoryId);
     }
+
+    await this.productFeaturedRepo.update(id, {
+      ...updatedProductDetails,
+      ...(category ? { category } : {}),
+    });
+
+    const updatedProduct = await this.productFeaturedRepo.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+
+    if (!updatedProduct) {
+      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+    }
+
+    return updatedProduct;
   }
 
   async deleteProduct(id: number) {
-    try {
-      const deleteResult = await this.productFeaturedRepo.delete(id);
+    const deleteResult = await this.productFeaturedRepo.delete(id);
 
-      if (deleteResult.affected === 0) {
-        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
-      }
-
-      return { message: 'Product deleted successfully' };
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      throw new HttpException(
-        'Failed to delete product.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    if (deleteResult.affected === 0) {
+      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
     }
+
+    return { message: 'Product deleted successfully' };
   }
 }
