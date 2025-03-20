@@ -19,7 +19,21 @@ export class CategoryService {
     return this.categoryRepository.save(category);
   }
 
+  async update(id: string, name: string): Promise<Category | null> {
+    const categoryId = parseInt(id, 10); // Convert id to number if needed
+    const category = await this.categoryRepository.findOne({
+      where: { id: categoryId },
+    });
+
+    if (!category) {
+      return null;
+    }
+
+    category.name = name;
+    return this.categoryRepository.save(category);
+  }
+
   async delete(id: string): Promise<void> {
-    await this.categoryRepository.delete(id);
+    await this.categoryRepository.delete(parseInt(id, 10)); // Convert to number if needed
   }
 }
